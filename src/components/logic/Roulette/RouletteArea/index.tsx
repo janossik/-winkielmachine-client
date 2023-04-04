@@ -49,8 +49,8 @@ const RouletteArea = () => {
       <MultiResetButton ids={['11', '14']} top={360} left={532} />
       <MultiResetButton ids={['12', '15']} top={155} left={532} />
       <MultiResetButton ids={['18', '15', '17', '14']} top={257} left={698} />
-      <MultiResetButton ids={['18', '15']} top={360} left={698} />
-      <MultiResetButton ids={['17', '14']} top={155} left={698} />
+      <MultiResetButton ids={['18', '15']} top={155} left={698} />
+      <MultiResetButton ids={['17', '14']} top={360} left={698} />
       <MultiResetButton ids={['18', '17']} top={257} left={785} />
       {/*---*/}
       <MultiResetButton ids={['24', '23']} top={257} left={120 + 905} />
@@ -64,8 +64,8 @@ const RouletteArea = () => {
       <MultiResetButton ids={['29', '32']} top={360} left={532 + 905} />
       <MultiResetButton ids={['30', '33']} top={155} left={532 + 905} />
       <MultiResetButton ids={['36', '33', '35', '32']} top={257} left={698 + 905} />
-      <MultiResetButton ids={['36', '33']} top={360} left={698 + 905} />
-      <MultiResetButton ids={['35', '32']} top={155} left={698 + 905} />
+      <MultiResetButton ids={['36', '33']} top={155} left={698 + 905} />
+      <MultiResetButton ids={['35', '32']} top={360} left={698 + 905} />
       <MultiResetButton ids={['36', '35']} top={257} left={785 + 905} />
     </>
   );

@@ -9,7 +9,9 @@ interface Bet {
   visible: boolean;
 }
 
-const bets: Bet[] = [
+type Bets = Bet[];
+
+const bets: Bets = [
   { order: 1, id: '6', primary: 1, secondary: 1, lock: true, visible: true },
   { order: 2, id: '9', primary: 1, secondary: 1, lock: true, visible: true },
   { order: 3, id: '12', primary: 1, secondary: 1, lock: true, visible: true },
@@ -34,7 +36,16 @@ const bets: Bet[] = [
   { order: 22, id: '35', primary: 1, secondary: 1, lock: true, visible: true },
 ];
 
-export const rules: { [key: string]: { cost: number; min: number; max: number; win: number } } = {
+interface Rule {
+  cost: number;
+  min: number;
+  max: number;
+  win: number;
+}
+
+type Rules = Record<string, Rule>;
+
+export const rules: Rules = {
   '1': { cost: 1, min: 1, max: 8, win: 9 },
   '2': { cost: 2, min: 1, max: 4, win: 18 },
   '3': { cost: 3, min: 1, max: 3, win: 27 },
@@ -97,7 +108,9 @@ const RouletteStateContext = React.createContext<{ state: State; dispatch: Dispa
 
 const getCurrentBet = (state: State, id: string) => {
   const current = state.bets.find((bet) => bet.id === id);
-  if (!current) return null;
+  if (!current) {
+    throw new Error(`Bet by ID ${id} not exist`);
+  }
   return current;
 };
 
@@ -105,18 +118,26 @@ const setMax = (state: State, max: string) => ({ ...state, max });
 
 const factoryRound =
   (state: State) =>
-  (valueCallback = (value: number) => value, betsCallback: (bet: Bet) => Bet = (bet) => bet) => {
+  (valueCallback = (value: number) => value, mapBetsCallback: (bet: Bet) => Bet = (bet) => bet) => {
     return {
       ...state,
       value: valueCallback(state.value),
-      bets: state.bets.map(betsCallback),
+      bets: state.bets.map(mapBetsCallback),
     };
   };
 
-const grow = (v: number) => v + 1;
-const shrink = (v: number) => v - 1;
+const grow = (v: number, tokenValue = 1) => v + tokenValue;
+const shrink = (v: number, tokenValue = 1) => v - tokenValue;
 
-const getCost = (id: number | string) => rules[`${id}`].cost;
+const getRule = (id: number | string) => {
+  const rule = rules[`${id}`];
+  if (!rule) {
+    throw new Error(`Rule by ID ${id} not exist`);
+  }
+  return rule;
+};
+const getCost = (id: number | string) => getRule(id).cost;
+const getWin = (id: number | string) => getRule(id).win;
 
 const resetBet = (id: string) => (bet: Bet) => {
   if (bet.id !== id) return bet;
@@ -130,6 +151,10 @@ const secondaryUp = (id: string) => (bet: Bet) => {
   if (bet.id !== id) return bet;
   return { ...bet, secondary: bet.secondary + 1 };
 };
+const secondaryDown = (id: string) => (bet: Bet) => {
+  if (bet.id !== id) return bet;
+  return { ...bet, secondary: bet.secondary - 1 };
+};
 function rouletteReducer(state: State, action: Action) {
   const round = factoryRound(state);
   switch (action.type) {
@@ -137,144 +162,54 @@ function rouletteReducer(state: State, action: Action) {
       return setMax(state, action.max);
     }
     case 'add-primary': {
-      const current = getCurrentBet(state, action.id);
-      if (!current || current.primary + 1 > Number(state.max)) return state;
-      if (!rules[`${current.primary + 1}`] || current.primary + 1 > Number(state.max)) {
-        return round(shrink, resetBet(action.id));
-
-        /*return {
-          ...state,
-          value: state.value - 1,
-          bets: state.bets.map((v) => {
-            if (v.id !== action.id) return v;
-            return { ...v, primary: 1, secondary: 1 };
-          }),
-        };*/
-      }
-      return round(shrink, primaryUp(action.id));
-      /*      return {
-        ...state,
-        value: state.value - 1,
-        bets: state.bets.map((bet) => {
-          if (bet.id === action.id) return { ...current, primary: current.primary + 1, secondary: 1 };
-          return bet;
-        }),
-      };*/
+      const { id } = action;
+      const { primary } = getCurrentBet(state, id);
+      if (primary + 1 > Number(state.max)) return state;
+      if (!getRule(primary + 1)) return round(shrink, resetBet(id));
+      return round(shrink, primaryUp(id));
     }
     case 'add-secondary': {
-      const current = getCurrentBet(state, action.id);
-      if (!current) return state;
-      if (current.secondary >= rules[`${current.primary}`].max) {
-        if (current.primary === Number(state.max)) {
-          return round((v) => v - rules[`${current.primary}`].cost, secondaryUp(action.id));
-          /*return {
-            ...state,
-            value: state.value - rules[`${current.primary}`].cost,
-            bets: state.bets.map((v) => {
-              if (v.id !== action.id) return v;
-              return { ...v, secondary: current.secondary + 1 };
-            }),
-          };*/
-        }
-        if (!rules[`${current.primary + 1}`]) {
-          return round(shrink, resetBet(action.id));
-          /*return {
-            ...state,
-            value: state.value - 1,
-            bets: state.bets.map((v) => {
-              if (v.id !== action.id) return v;
-              return { ...v, primary: 1, secondary: 1 };
-            }),
-          };*/
-        }
-        return round((v) => v - rules[`${current.primary}`].cost, primaryUp(action.id));
-        /*        return {
-          ...state,
-          value: state.value - rules[`${current.primary}`].cost,
-          bets: [...state.bets.filter(({ id }) => id !== action.id), { ...current, primary: current.primary + 1, secondary: 1 }],
-        };*/
-      } else {
-        return round((v) => v - rules[`${current.primary}`].cost, secondaryUp(action.id));
-        /*        return {
-          ...state,
-          value: state.value - rules[`${current.primary}`].cost,
-          bets: [...state.bets.filter(({ id }) => id !== action.id), { ...current, secondary: current.secondary + 1 }],
-        };*/
-      }
+      const { id } = action;
+      const { secondary, primary } = getCurrentBet(state, id);
+      if (primary === Number(state.max)) return round((v) => v - getCost(primary), secondaryUp(id));
+      if (secondary >= getRule(primary).max) return round((v) => v - getCost(primary), primaryUp(id));
+
+      return round((v) => v - getCost(primary), secondaryUp(id));
     }
     case 'sub-secondary': {
-      const current = getCurrentBet(state, action.id);
-      if (!current || current.secondary <= 1) return state;
-
-      return {
-        ...state,
-        value: state.value + rules[`${current.primary}`].cost,
-        bets: state.bets.map((bet) => {
-          if (bet.id !== action.id) return bet;
-          return { ...bet, secondary: bet.secondary - 1 };
-        }),
-      };
+      const { id } = action;
+      const current = getCurrentBet(state, id);
+      if (current.secondary <= 1) return state;
+      return round((v) => v + getCost(current.primary), secondaryDown(id));
     }
     case 'light-reset': {
-      return {
-        ...state,
-        bets: state.bets.map((v) => {
-          if (v.id !== action.id) return v;
-          return { ...v, primary: 1, secondary: 1 };
-        }),
-      };
+      const { id } = action;
+      return round((v) => v, resetBet(id));
     }
     case 'reset': {
-      const current = getCurrentBet(state, action.id);
-      if (!current || current.lock) return state;
-      if (current.primary === 1) {
-        return {
-          ...state,
-          value: state.value + rules[`${current.primary}`].win,
-          bets: state.bets.map((v) => {
-            if (v.id !== action.id) return v;
-            return { ...v, primary: 1, secondary: 1 };
-          }),
-        };
-      }
-      if (current.secondary === 1) {
-        return {
-          ...state,
-          value: state.value + rules[`${current.primary - 1}`].win,
-          bets: state.bets.map((v) => {
-            if (v.id !== action.id) return v;
-            return { ...v, primary: 1, secondary: 1 };
-          }),
-        };
-      }
-      return {
-        ...state,
-        value: state.value + rules[`${current.primary}`].win,
-        bets: state.bets.map((v) => {
-          if (v.id !== action.id) return v;
-          return { ...v, primary: 1, secondary: 1 };
-        }),
-      };
+      const { id } = action;
+      const { lock, primary, secondary } = getCurrentBet(state, id);
+      if (lock) return state;
+
+      if (primary === 1) return round((v) => v + getWin(primary), resetBet(id));
+      if (secondary === 1) return round((v) => v + getWin(primary - 1), resetBet(id));
+      return round((v) => v + getWin(primary), resetBet(id));
     }
     case 'reset-global': {
-      return {
-        ...state,
-        value: 0,
-        bets: state.bets.map((v) => {
-          return { ...v, primary: 1, secondary: 1 };
-        }),
-      };
+      return round(
+        () => 0,
+        (bet) => ({ ...bet, primary: 1, secondary: 1 }),
+      );
     }
     case 'lock': {
-      const current = getCurrentBet(state, action.id);
-      if (!current) return state;
-      return {
-        ...state,
-        bets: state.bets.map((v) => {
-          if (v.id !== action.id) return v;
-          return v.lock ? { ...v, lock: false } : { ...v, lock: true };
-        }),
-      };
+      const { id } = action;
+      return round(
+        (v) => v,
+        (bet) => {
+          if (bet.id !== id) return bet;
+          return bet.lock ? { ...bet, lock: false } : { ...bet, lock: true };
+        },
+      );
     }
     default: {
       throw new Error(`Unhandled action type: \n${JSON.stringify(action, null, 1)}`);

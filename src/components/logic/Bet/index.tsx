@@ -1,18 +1,18 @@
 import styled from 'styled-components';
-import { useRoulette } from '~/hooks/useRoulette';
+import { rules, useRoulette } from '~/hooks/useRoulette';
 
 const WrapperBet = styled.div<{ visible: boolean; lock: boolean }>`
   display: grid;
   background-color: dimgrey;
   visibility: ${({ visible }) => (visible ? 'initial' : 'hidden')};
   grid-template-areas:
-    'z a a b b'
+    'z a a x x'
     'c c c d d'
     'c c c d d'
     'c c c d d'
     'c c c d d'
     'c c c d d'
-    'e f f g g';
+    'e f f b g';
   gap: 2px;
   opacity: ${({ lock }) => (lock ? '0.8' : '1')};
 `;
@@ -23,19 +23,23 @@ const Screen = styled.div`
   background-color: #202f2f;
 `;
 
-const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: number; secondary: number; cost: number; lock: boolean; visible: boolean }) => {
+const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: number; secondary: number; lock: boolean; visible: boolean }) => {
   const {
     state: { max },
     dispatch,
   } = useRoulette();
+
   return (
     <WrapperBet visible={visible} lock={lock}>
-      <Screen style={{ gridArea: 'z' }}>{id}</Screen>
+      <Screen style={{ gridArea: 'z' }}>{rules[`${secondary === 1 ? primary - 1 || 1 : primary}`].cost}</Screen>
       <button style={{ gridArea: 'a' }} disabled={lock} onClick={() => dispatch({ type: 'reset', id })}>
-        Reset
+        WIN
+      </button>
+      <button style={{ gridArea: 'x' }} disabled={lock} onClick={() => dispatch({ type: 'light-reset', id })}>
+        Re
       </button>
       <button style={{ gridArea: 'b' }} disabled={lock} onClick={() => dispatch({ type: 'add-secondary', id })}>
-        +1
+        +
       </button>
       <Screen
         style={{
@@ -44,7 +48,8 @@ const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: n
           background: primary === Number(max) ? 'red' : primary > 1 && secondary === 1 ? 'green' : undefined,
         }}
       >
-        {primary}
+        {rules[`${primary}`].cost}
+        {/*{primary}*/}
       </Screen>
       <Screen style={{ gridArea: 'd', fontSize: '24px' }}>{secondary}</Screen>
       <button
@@ -60,7 +65,7 @@ const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: n
         {lock ? 'Unlock' : 'Lock'}
       </button>
       <button style={{ gridArea: 'g' }} disabled={lock} onClick={() => dispatch({ type: 'sub-secondary', id })}>
-        -1
+        -
       </button>
     </WrapperBet>
   );

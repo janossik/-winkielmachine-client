@@ -21,6 +21,7 @@ const RouletteFooter = () => {
       </RouletteFooterButtonsWrapper>
       <RouletteFooterButtonsWrapper>
         <Button onClick={() => setActiveLeftMargin((v) => !v)}>Switch to {activeLeftMargin ? 'right' : 'left'}</Button>
+        <Button onClick={() => dispatch({ type: 'unlock-all' })}>Unlock</Button>
       </RouletteFooterButtonsWrapper>
     </>
   );

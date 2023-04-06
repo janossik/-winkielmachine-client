@@ -32,6 +32,9 @@ function rouletteReducer(state: State, action: Action) {
     case 'lock': {
       return lock(state, action);
     }
+    case 'unlock-all': {
+      return { ...state, bets: state.bets.map((bet) => (bet.visible ? { ...bet, lock: false } : bet)) };
+    }
     default: {
       throw new Error(`Unhandled action type: \n${JSON.stringify(action, null, 1)}`);
     }

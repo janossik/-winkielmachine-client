@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const RouletteAreaWrapper = styled.div`
+  position: relative;
   display: grid;
   height: 450px;
   width: 1800px;

@@ -7,6 +7,7 @@ export type Action =
   | { type: 'add-secondary'; id: string }
   | { type: 'sub-secondary'; id: string }
   | { type: 'add-global' }
+  | { type: 'unlock-all' }
   | { type: 'max'; max: string }
   | { type: 'lock'; id: string }
   | { type: 'win'; id: string }

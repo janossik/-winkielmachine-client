@@ -1,0 +1,26 @@
+import { Bets } from '~/type/bet';
+
+export const bets: Bets = [
+  { order: 1, id: '6', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 2, id: '9', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 3, id: '12', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 4, id: '15', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 5, id: '18', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 6, id: '21', primary: 1, secondary: 1, lock: true, visible: false },
+  { order: 7, id: '24', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 8, id: '27', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 9, id: '30', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 10, id: '33', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 11, id: '36', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 12, id: '5', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 13, id: '8', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 14, id: '11', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 15, id: '14', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 16, id: '17', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 17, id: '20', primary: 1, secondary: 1, lock: true, visible: false },
+  { order: 18, id: '23', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 19, id: '26', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 20, id: '29', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 21, id: '32', primary: 1, secondary: 1, lock: true, visible: true },
+  { order: 22, id: '35', primary: 1, secondary: 1, lock: true, visible: true },
+];

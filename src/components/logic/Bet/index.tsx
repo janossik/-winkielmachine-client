@@ -1,44 +1,42 @@
-import styled from 'styled-components';
-import { rules, useRoulette } from '~/hooks/useRoulette';
-
-const WrapperBet = styled.div<{ visible: boolean; lock: boolean }>`
-  display: grid;
-  background-color: dimgrey;
-  visibility: ${({ visible }) => (visible ? 'initial' : 'hidden')};
-  grid-template-areas:
-    'z a a x x'
-    'c c c d d'
-    'c c c d d'
-    'c c c d d'
-    'c c c d d'
-    'c c c d d'
-    'e f f b g';
-  gap: 2px;
-  opacity: ${({ lock }) => (lock ? '0.8' : '1')};
-`;
-
-const Screen = styled.div`
-  display: grid;
-  place-items: center;
-  background-color: #202f2f;
-`;
+import { index } from '~/hooks/useRoulette';
+import { rules } from '~/utils/rules';
+import { getCost } from '~/helpers/roulette';
+import { Screen, WrapperBet } from '~/components/logic/Bet/Bet.styles';
 
 const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: number; secondary: number; lock: boolean; visible: boolean }) => {
   const {
     state: { max },
     dispatch,
-  } = useRoulette();
+  } = index();
 
   return (
     <WrapperBet visible={visible} lock={lock}>
       <Screen style={{ gridArea: 'z' }}>{rules[`${secondary === 1 ? primary - 1 || 1 : primary}`].cost}</Screen>
-      <button style={{ gridArea: 'a' }} disabled={lock} onClick={() => dispatch({ type: 'reset', id })}>
-        WIN
-      </button>
-      <button style={{ gridArea: 'x' }} disabled={lock} onClick={() => dispatch({ type: 'light-reset', id })}>
-        Re
-      </button>
-      <button style={{ gridArea: 'b' }} disabled={lock} onClick={() => dispatch({ type: 'add-secondary', id })}>
+      <span
+        style={{
+          gridArea: 'a',
+          background: 'url(/win.svg), #fff',
+          backgroundSize: 'auto 70%',
+          backgroundPosition: '50%',
+          backgroundRepeat: 'no-repeat',
+          cursor: 'pointer',
+          pointerEvents: lock ? 'none' : 'auto',
+        }}
+        onClick={() => dispatch({ type: 'win', id })}
+      ></span>
+      <span
+        style={{
+          gridArea: 'x',
+          background: 'url(/reset.svg), #fff',
+          backgroundSize: 'auto 70%',
+          backgroundPosition: '50%',
+          backgroundRepeat: 'no-repeat',
+          cursor: 'pointer',
+          pointerEvents: lock ? 'none' : 'auto',
+        }}
+        onClick={() => dispatch({ type: 'reset', id })}
+      />
+      <button style={{ gridArea: 'b', backgroundColor: '#fff', border: 'none' }} disabled={lock} onClick={() => dispatch({ type: 'add-secondary', id })}>
         +
       </button>
       <Screen
@@ -48,12 +46,11 @@ const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: n
           background: primary === Number(max) ? 'red' : primary > 1 && secondary === 1 ? 'green' : undefined,
         }}
       >
-        {rules[`${primary}`].cost}
-        {/*{primary}*/}
+        {getCost(primary)}
       </Screen>
       <Screen style={{ gridArea: 'd', fontSize: '24px' }}>{secondary}</Screen>
       <button
-        style={{ gridArea: 'e' }}
+        style={{ gridArea: 'e', backgroundColor: '#fff', border: 'none' }}
         disabled={lock}
         onClick={() => {
           dispatch({ type: 'add-primary', id });
@@ -61,10 +58,18 @@ const Bet = ({ id, primary, secondary, visible, lock }: { id: string; primary: n
       >
         +1c
       </button>
-      <button style={{ gridArea: 'f' }} onClick={() => dispatch({ type: 'lock', id })}>
-        {lock ? 'Unlock' : 'Lock'}
-      </button>
-      <button style={{ gridArea: 'g' }} disabled={lock} onClick={() => dispatch({ type: 'sub-secondary', id })}>
+      <span
+        style={{
+          gridArea: 'f',
+          backgroundImage: lock ? `url(/lock.svg)` : `url(/unlock.svg)`,
+          backgroundSize: '60% 70%',
+          backgroundPosition: '50%',
+          backgroundRepeat: 'no-repeat',
+          cursor: 'pointer',
+        }}
+        onClick={() => dispatch({ type: 'lock', id })}
+      />
+      <button style={{ gridArea: 'g', backgroundColor: '#fff', border: 'none' }} disabled={lock} onClick={() => dispatch({ type: 'sub-secondary', id })}>
         -
       </button>
     </WrapperBet>

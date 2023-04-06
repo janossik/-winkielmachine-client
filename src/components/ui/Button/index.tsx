@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 const Button = styled.button`
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-family: 'monospace', sans-serif;
+  font-size: 24px;
   letter-spacing: 2px;
   text-decoration: none;
   text-transform: uppercase;
@@ -16,6 +16,7 @@ const Button = styled.button`
   touch-action: manipulation;
   width: 300px;
   height: 70px;
+  padding: 5px 10px;
   &:active {
     box-shadow: 0 0 0 0;
     top: 5px;

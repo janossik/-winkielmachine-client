@@ -1,73 +1,27 @@
-import { useRoulette } from '~/hooks/useRoulette';
+import { index } from '~/hooks/useRoulette';
 import Button from '~/components/ui/Button';
+import { useState } from 'react';
+import Separator from '~/components/ui/Separator';
+import { RouletteFooterButtonsWrapper, RouletteFooterMainButtonsWrapper } from '~/components/logic/Roulette/RouletteFooter/RouletteFooter.styles';
 
 const RouletteFooter = () => {
   const {
     state: { bets },
     dispatch,
-  } = useRoulette();
+  } = index();
+  const [activeLeftMargin, setActiveLeftMargin] = useState(false);
   return (
     <>
-      <hr style={{ width: '1800px' }} />
-
-      <div style={{ display: 'flex', margin: '0 auto', gap: '10px', width: '1800px' }}>
-        <div style={{ display: 'flex' }}>
-          <Button
-            style={{
-              fontSize: '24px',
-              textTransform: 'uppercase',
-              fontFamily: 'monospace',
-              padding: '5px 10px',
-            }}
-            onClick={() => dispatch({ type: 'reset-global' })}
-          >
-            Global Reset
-          </Button>
-          <Button
-            style={{
-              fontSize: '24px',
-              textTransform: 'uppercase',
-              fontFamily: 'monospace',
-              padding: '5px 10px',
-            }}
-            onClick={() => {
-              bets.forEach(({ id, lock }) => {
-                !lock && dispatch({ type: 'add-secondary', id: id });
-              });
-            }}
-          >
-            Global add
-          </Button>
-        </div>
-        <div style={{ display: 'flex', marginLeft: 'auto', gap: '10px' }}>
-          <Button
-            style={{
-              fontSize: '24px',
-              textTransform: 'uppercase',
-              fontFamily: 'monospace',
-              padding: '5px 10px',
-            }}
-            onClick={() => dispatch({ type: 'reset-global' })}
-          >
-            Global Reset
-          </Button>
-          <Button
-            style={{
-              fontSize: '24px',
-              textTransform: 'uppercase',
-              fontFamily: 'monospace',
-              padding: '5px 10px',
-            }}
-            onClick={() => {
-              bets.forEach(({ id, lock }) => {
-                !lock && dispatch({ type: 'add-secondary', id: id });
-              });
-            }}
-          >
-            Global add
-          </Button>
-        </div>
-      </div>
+      <Separator />
+      <RouletteFooterButtonsWrapper>
+        <RouletteFooterMainButtonsWrapper activeLeftMargin={activeLeftMargin}>
+          <Button onClick={() => dispatch({ type: 'reset-global' })}>Global Reset</Button>
+          <Button onClick={() => bets.forEach(({ id, lock }) => !lock && dispatch({ type: 'add-secondary', id: id }))}>Global add</Button>
+        </RouletteFooterMainButtonsWrapper>
+      </RouletteFooterButtonsWrapper>
+      <RouletteFooterButtonsWrapper>
+        <Button onClick={() => setActiveLeftMargin((v) => !v)}>Switch to {activeLeftMargin ? 'right' : 'left'}</Button>
+      </RouletteFooterButtonsWrapper>
     </>
   );
 };

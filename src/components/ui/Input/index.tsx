@@ -18,11 +18,12 @@ const WrapperInput = styled.div`
   }
 `;
 
-const Input = (props: JSX.IntrinsicAttributes & InputHTMLAttributes<HTMLInputElement> & { label: string }) => {
+const Input = (props: JSX.IntrinsicAttributes & InputHTMLAttributes<HTMLInputElement> & { label: string; suffixLabel: string }) => {
   return (
     <WrapperInput>
       <label>{props.label}</label>
       <input {...props} />
+      <span>{props.suffixLabel}</span>
     </WrapperInput>
   );
 };
